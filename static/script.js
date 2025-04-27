@@ -1,4 +1,3 @@
-// State management
 const appState = {
     uploadedDocuments: [],
     chatHistory: [],
@@ -31,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function verifyElements() {
-    // Verify all required elements exist
     for (const [key, element] of Object.entries(elements)) {
         if (!element) {
             console.error(`Element ${key} not found`);
@@ -40,27 +38,20 @@ function verifyElements() {
 }
 
 function setupEventListeners() {
-    // File input via click or drop
     if (elements.dropZone && elements.fileInput) {
         elements.dropZone.addEventListener('click', () => elements.fileInput.click());
-
-        // File selection
         elements.fileInput.addEventListener('change', () => {
             if (elements.fileInput.files?.length > 0) {
                 handleFileSelection(elements.fileInput.files);
             }
         });
-
-        // Drag and drop
         elements.dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             elements.dropZone.classList.add('drag-active');
         });
-
         elements.dropZone.addEventListener('dragleave', () => {
             elements.dropZone.classList.remove('drag-active');
         });
-
         elements.dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             elements.dropZone.classList.remove('drag-active');
@@ -69,13 +60,9 @@ function setupEventListeners() {
             }
         });
     }
-
-    // Clear documents
     if (elements.clearDocsBtn) {
         elements.clearDocsBtn.addEventListener('click', clearAllDocuments);
     }
-
-    // Chat input
     if (elements.messageInput && elements.sendButton) {
         elements.messageInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -83,30 +70,21 @@ function setupEventListeners() {
                 sendMessage();
             }
         });
-
         elements.sendButton.addEventListener('click', sendMessage);
     }
 }
 
 function isValidFile(file) {
-    // Check if file exists and has required properties
-    if (!file || typeof file !== 'object') return false;
-    if (!file.name || !file.size || !file.type) return false;
-    
-    // Check file size
+    if (!file || typeof file !== 'object' || !file.name || !file.size || !file.type) return false;
     if (file.size > MAX_FILE_SIZE) {
         showMessage('error', `File ${file.name} exceeds size limit (16MB)`);
         return false;
     }
-    
-    // Check extension safely
-    const fileName = file.name || '';
-    const extension = fileName.split('.').pop() || '';
+    const extension = file.name.split('.').pop()?.toLowerCase() || '';
     if (!ALLOWED_EXTENSIONS.has(extension)) {
         showMessage('error', `File ${file.name} is not a PDF`);
         return false;
     }
-    
     return true;
 }
 
@@ -115,47 +93,29 @@ async function handleFileSelection(files) {
         showMessage('error', 'No files selected');
         return;
     }
-
-    // Filter valid PDF files
-    const validFiles = Array.from(files).filter(file => {
-        if (!file || !file.name) return false;
-        
-        // Safely check extension
-        const fileName = file.name || '';
-        const extension = fileName.split('.').pop();
-        return extension === 'pdf';
-    });
-
+    const validFiles = Array.from(files).filter(isValidFile);
     if (validFiles.length === 0) {
         showMessage('error', 'Please select PDF files only');
         return;
     }
-
     showLoading(true);
     const formData = new FormData();
-    
-    // Use 'files[]' as key for multiple files
-    validFiles.forEach(file => {
-        formData.append('files[]', file);  // Note the [] for multiple files
-    });
-
+    validFiles.forEach(file => formData.append('files[]', file));
     try {
         const response = await fetch('/upload', {
             method: 'POST',
-            body: formData  // No Content-Type header for FormData
+            body: formData
         });
-
         const data = await response.json();
-        
         if (!response.ok) {
             throw new Error(data.message || `Upload failed: ${response.status}`);
         }
-
         if (data.success) {
-            appState.uploadedDocuments = data.documents;
+            appState.uploadedDocuments = [...appState.uploadedDocuments, ...data.documents];
             updateDocumentList();
             updateFileCount();
-            showMessage('success', 'Files uploaded successfully!');
+            const imageCount = data.documents.reduce((sum, doc) => sum + (doc.images?.length || 0), 0);
+            showMessage('success', `Files uploaded successfully! ${imageCount} images extracted.`);
         } else {
             throw new Error(data.message || 'Upload failed');
         }
@@ -169,24 +129,61 @@ async function handleFileSelection(files) {
 }
 
 function updateDocumentList() {
-    elements.documentList.innerHTML = appState.uploadedDocuments.map(doc => `
-        <div class="document-item" data-id="${doc.id}">
-            <div class="document-info">
-                <div class="document-name">${doc.name}</div>
-                <div class="document-size">${formatFileSize(doc.size)}</div>
-                <div class="document-images">
-                    ${doc.images && doc.images.length > 0 ? 
-                        doc.images.map(img => `
-                            <div class="image-preview">
-                                <img src="/images/${img.filename}" alt="${img.heading}" title="${img.heading}" />
-                                <div class="image-heading">${img.heading}</div>
-                            </div>
-                        `).join('') : 'No images extracted'}
+    elements.documentList.innerHTML = appState.uploadedDocuments.map(doc => {
+        // Group images by heading
+        const imagesByHeading = {};
+        if (doc.images && doc.images.length > 0) {
+            doc.images.forEach(img => {
+                const heading = img.heading || 'No heading';
+                if (!imagesByHeading[heading]) {
+                    imagesByHeading[heading] = [];
+                }
+                imagesByHeading[heading].push(img);
+            });
+        }
+        const hasImages = Object.keys(imagesByHeading).length > 0;
+        
+        return `
+            <div class="document-item" data-id="${doc.id}">
+                <div class="document-info">
+                    <div class="document-name">${doc.name}</div>
+                    <div class="document-size">${formatFileSize(doc.size)}</div>
+                    <div class="document-images-toggle">
+                        <button class="view-images-btn" aria-expanded="false" aria-controls="images-${doc.id}">
+                            ${hasImages ? `View Images (${doc.images.length})` : 'No Images Available'}
+                        </button>
+                        <div class="document-images" id="images-${doc.id}" style="display: none;">
+                            ${hasImages ? Object.entries(imagesByHeading).map(([heading, imgs]) => `
+                                <div class="images-section">
+                                    <h4 class="images-heading">${heading}</h4>
+                                    <div class="images-list">
+                                        ${imgs.map(img => `
+                                            <div class="image-preview">
+                                                <img src="/images/${img.filename}" alt="Image for ${img.heading} on page ${img.page}" title="${img.heading}" loading="lazy" onerror="this.src='/fallback-image.png';" />
+                                                <div class="image-description">Page: ${img.page}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('') : '<p>No images extracted</p>'}
+                        </div>
+                    </div>
                 </div>
+                <i class="fas fa-times remove-doc" title="Remove document"></i>
             </div>
-            <i class="fas fa-times remove-doc" title="Remove document"></i>
-        </div>
-    `).join('');
+        `;
+    }).join('');
+
+    // Add event listeners for toggle buttons
+    document.querySelectorAll('.view-images-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const imagesSection = e.target.closest('.document-images-toggle').querySelector('.document-images');
+            const isExpanded = e.target.getAttribute('aria-expanded') === 'true';
+            imagesSection.style.display = isExpanded ? 'none' : 'block';
+            e.target.setAttribute('aria-expanded', !isExpanded);
+            e.target.textContent = isExpanded ? `View Images (${imagesSection.querySelectorAll('.image-preview').length})` : 'Hide Images';
+        });
+    });
 
     document.querySelectorAll('.remove-doc').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -230,13 +227,10 @@ function updateFileCount() {
 async function sendMessage() {
     const messageText = elements.messageInput.value.trim();
     if (!messageText || appState.currentProcessing) return;
-
     addChatMessage('user', messageText);
     elements.messageInput.value = '';
     appState.currentProcessing = true;
-
     const thinkingMessage = addThinkingMessage();
-
     try {
         const response = await fetch('/chat', {
             method: 'POST',
@@ -246,10 +240,8 @@ async function sendMessage() {
                 documents: appState.uploadedDocuments.map(doc => doc.id)
             })
         });
-
-        if (!response.ok) throw new Error(`Server responded with status ${response.status}`);
-
         const result = await response.json();
+        if (!response.ok) throw new Error(result.message || `Server responded with status ${response.status}`);
         if (result.success) {
             removeThinkingMessage(thinkingMessage);
             addChatMessage('bot', result.response, result.images || []);
@@ -260,12 +252,13 @@ async function sendMessage() {
                 timestamp: new Date().toISOString()
             });
         } else {
-            throw new Error(result.message || 'Failed to get response');
+            throw new Error(result.response || 'Failed to get response');
         }
     } catch (error) {
         console.error('Chat error:', error);
         removeThinkingMessage(thinkingMessage);
         addChatMessage('bot', `Sorry, I encountered an error: ${error.message}`);
+        showMessage('error', error.message);
     } finally {
         appState.currentProcessing = false;
         showLoading(false);
@@ -275,7 +268,6 @@ async function sendMessage() {
 function addThinkingMessage() {
     const existingThinking = document.querySelector('.thinking-message');
     if (existingThinking) existingThinking.remove();
-
     const thinkingDiv = document.createElement('div');
     thinkingDiv.className = 'message bot-message thinking-message';
     thinkingDiv.innerHTML = `
@@ -297,19 +289,17 @@ function addChatMessage(sender, text, images = []) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender}-message`;
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
     let imagesHtml = '';
     if (images.length > 0) {
         imagesHtml = '<div class="message-images">' + 
             images.map(img => `
                 <div class="image-container">
-                    <img src="${img.url}" alt="${img.heading}" title="${img.heading}" />
+                    <img src="${img.url}" alt="Image for ${img.heading}" title="${img.heading}" loading="lazy" onerror="this.src='/fallback-image.png';" />
                     <div class="image-caption">Heading: ${img.heading} (Similarity: ${img.similarity.toFixed(2)})</div>
                 </div>
             `).join('') +
             '</div>';
     }
-
     messageDiv.innerHTML = `
         <div>${formatMessageText(text)}</div>
         ${imagesHtml}
@@ -317,7 +307,6 @@ function addChatMessage(sender, text, images = []) {
     `;
     elements.chatContainer.appendChild(messageDiv);
     elements.chatContainer.scrollTop = elements.chatContainer.scrollHeight;
-
     const welcomeMsg = document.querySelector('.welcome-message');
     if (welcomeMsg) welcomeMsg.remove();
 }
