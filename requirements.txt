@@ -1,0 +1,9 @@
+Flask
+flask-cors
+numpy
+requests
+scikit-learn
+sentence-transformers
+PyPDF2
+pdfplumber
+PyMuPDF
