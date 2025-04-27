@@ -522,3 +522,164 @@ textarea:focus {
     margin-top: 5px;
     display: block;
 }
+/* Ensure images are responsive and consistently sized */
+.document-images, .message-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.image-preview, .image-container {
+    max-width: 200px;
+    text-align: center;
+}
+
+.image-preview img, .image-container img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.image-heading, .image-caption {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 5px;
+    word-wrap: break-word;
+}
+
+/* Fallback image styling */
+img[src="/fallback-image.png"] {
+    opacity: 0.5;
+    border: 2px dashed #ccc;
+}
+/* Document item styling */
+.document-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.document-info {
+    flex: 1;
+}
+
+.document-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.document-size {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Toggle button styling */
+.document-images-toggle {
+    margin-top: 10px;
+}
+
+.view-images-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-size: 0.9em;
+    padding: 5px;
+    text-decoration: underline;
+}
+
+.view-images-btn:hover {
+    color: #0056b3;
+}
+
+.view-images-btn:disabled {
+    color: #999;
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
+/* Images section styling */
+.document-images {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.images-section {
+    margin-bottom: 15px;
+}
+
+.images-heading {
+    font-size: 1em;
+    color: #333;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.images-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.image-preview {
+    max-width: 200px;
+    text-align: center;
+}
+
+.image-preview img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.image-description {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 5px;
+    word-wrap: break-word;
+}
+
+/* Fallback image styling */
+img[src="/fallback-image.png"] {
+    opacity: 0.5;
+    border: 2px dashed #ccc;
+}
+
+/* Chat images styling (unchanged) */
+.message-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.image-container {
+    max-width: 200px;
+    text-align: center;
+}
+
+.image-container img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.image-caption {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 5px;
+    word-wrap: break-word;
+}
