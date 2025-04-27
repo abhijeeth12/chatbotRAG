@@ -16,7 +16,7 @@ This project focuses on **heading-aware text chunking**, **semantic search**, **
   - If no headings are found, it defaults to intelligent paragraph chunking.
 
 - **Automatic Keyword Extraction**
-  - After document parsing, **5–7 meaningful keywords** are **dynamically generated** from the content.
+  - After entering the query, **5–7 meaningful keywords** are **dynamically generated** which LLM thinks should present in the answer.
   - These keywords are later used to **enhance retrieval performance**.
 
 - **Semantic Similarity Search**
@@ -55,7 +55,7 @@ This project focuses on **heading-aware text chunking**, **semantic search**, **
 ## 🔥 Unique Innovations in this Project
 
 - 📚 **Heading-Based Chunking**: Meaningful grouping of text improves LLM prompt quality and semantic search performance.
-- 🧠 **Keyword Generation + Semantic Matching**: Dynamically extracted **5–7 keywords** are compared with user queries using **Sentence Transformers** to catch **implicit search intent**.
+- 🧠 **Keyword Generation + Semantic Matching**: Dynamically extracted **5–7 keywords** are compared with chunks using **Sentence Transformers** to catch **most relevant chunks** increasing it's accuracy.
 - 🖼️ **Heading-Aware Image Extraction**: Instead of just dumping images, each image is tied to its **nearest text heading**, enriching the search and retrieval context.
 - 🛠️ **Optimized Debuggable LLM Interactions**: Prompt timings, truncated previews, and error logs are available during LLM interaction — useful for scaling and tuning.
 - ⚡ **Resilient Upload and Processing Pipeline**: Detailed error handling ensures corrupted or large PDFs don't crash the system.
