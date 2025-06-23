@@ -5,7 +5,7 @@ const appState = {
 };
 
 // Constants
-const ALLOWED_EXTENSIONS = new Set(['pdf']);
+const ALLOWED_EXTENSIONS = new Set(['pdf', 'pptx', 'docx', 'txt']);
 const MAX_FILE_SIZE = 16 * 1024 * 1024; // 16MB
 
 // DOM elements
@@ -82,7 +82,7 @@ function isValidFile(file) {
     }
     const extension = file.name.split('.').pop()?.toLowerCase() || '';
     if (!ALLOWED_EXTENSIONS.has(extension)) {
-        showMessage('error', `File ${file.name} is not a PDF`);
+        showMessage('error', `File ${file.name} is not a supported format (PDF, PPTX, DOCX, TXT)`);
         return false;
     }
     return true;
@@ -95,7 +95,7 @@ async function handleFileSelection(files) {
     }
     const validFiles = Array.from(files).filter(isValidFile);
     if (validFiles.length === 0) {
-        showMessage('error', 'Please select PDF files only');
+        showMessage('error', 'Please select supported files only (PDF, PPTX, DOCX, TXT)');
         return;
     }
     showLoading(true);
@@ -159,8 +159,8 @@ function updateDocumentList() {
                                     <div class="images-list">
                                         ${imgs.map(img => `
                                             <div class="image-preview">
-                                                <img src="/images/${img.filename}" alt="Image for ${img.heading} on page ${img.page}" title="${img.heading}" loading="lazy" onerror="this.src='/fallback-image.png';" />
-                                                <div class="image-description">Page: ${img.page}</div>
+                                                <img src="/images/${img.filename}" alt="Image for ${img.heading}" title="${img.heading}" loading="lazy" onerror="this.src='/fallback-image.png';" />
+                                                <div class="image-description">${img.page ? `Page: ${img.page}` : img.slide ? `Slide: ${img.slide}` : ''}</div>
                                             </div>
                                         `).join('')}
                                     </div>
