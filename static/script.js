@@ -149,7 +149,7 @@ function updateDocumentList() {
                     <div class="document-name">${doc.name}</div>
                     <div class="document-size">${formatFileSize(doc.size)}</div>
                     <div class="document-images-toggle">
-                        <button class="view-images-btn" aria-expanded="false" aria-controls="images-${doc.id}">
+                        <button class="view-images-btn" aria-expanded="false" aria-controls="images-${doc.id}" ${!hasImages ? 'disabled' : ''}>
                             ${hasImages ? `View Images (${doc.images.length})` : 'No Images Available'}
                         </button>
                         <div class="document-images" id="images-${doc.id}" style="display: none;">

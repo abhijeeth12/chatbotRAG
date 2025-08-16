@@ -1,67 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAG Chat Assistant</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RAG Chat Assistant</title>
+
+  <!-- Fonts + icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Your stylesheet (replace /static/style.css) -->
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="app-container">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2><i class="fas fa-file-upload"></i> Documents</h2>
-                <button id="clearDocsBtn" class="icon-btn" title="Clear all documents">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-            <div class="upload-area" id="dropZone">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <p>Drag & drop files here or click to browse</p>
-                <input type="file" id="fileInput" multiple style="display: none;">
-            </div>
-            <div class="document-list" id="documentList">
-                <!-- Uploaded documents will appear here -->
-            </div>
+  <div class="app-container">
+    <!-- LEFT: Uploads / Documents (glass sidebar) -->
+    <aside class="sidebar" role="complementary">
+      <div class="sidebar-inner">
+        <div class="sidebar-header">
+          <div class="brand">
+            <i class="fas fa-file-upload"></i>
+            <span>Documents</span>
+          </div>
+          <button id="clearDocsBtn" class="icon-btn" title="Clear all documents">
+            <i class="fas fa-trash"></i>
+          </button>
         </div>
 
-        <div class="main-content">
-            <header class="app-header">
-                <h1><i class="fas fa-robot"></i> RAG Chat Assistant</h1>
-                <p class="subtitle">Chat with your documents using AI</p>
-            </header>
-
-            <div class="chat-container" id="chatContainer">
-                <!-- Chat messages will appear here -->
-                <div class="welcome-message">
-                    <h3>Welcome to RAG Chat Assistant</h3>
-                    <p>Upload documents to analyze them with AI, or ask general questions without documents.</p>
-                </div>
-            </div>
-
-            <div class="input-area">
-                <div class="file-indicator" id="fileIndicator">
-                    <i class="fas fa-file"></i> <span id="fileCount">0</span> document(s) loaded
-                </div>
-                <div class="input-wrapper">
-                    <textarea id="messageInput" placeholder="Type your message here..."></textarea>
-                    <button id="sendButton" class="send-btn">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-                <div class="input-footer">
-                    <small>Press Shift+Enter for new line, Enter to send</small>
-                </div>
-            </div>
+        <div class="upload-area" id="dropZone" title="Click to upload">
+          <i class="fas fa-cloud-upload-alt upload-icon"></i>
+          <p class="upload-text">Drag & drop files or click to browse</p>
+          <input type="file" id="fileInput" multiple style="display:none" />
         </div>
-    </div>
 
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-        <div class="loading-text">Processing...</div>
-    </div>
+        <div class="document-list" id="documentList" aria-live="polite">
+          <!-- uploaded documents inserted here by script.js -->
+        </div>
+      </div>
+    </aside>
 
-    <script src="/static/script.js"></script>
+    <!-- RIGHT: Main content (big centered brand + chat area) -->
+    <main class="main-content">
+      <!-- top header is minimal (kept for semantics) -->
+      <header class="app-header" aria-hidden="true">
+        <h1>RAG Chat Assistant</h1>
+        <p class="subtitle">Chat with your documents using AI</p>
+      </header>
+
+      <!-- Hero / centered brand area -->
+
+      <!-- chat container (keeps same id) -->
+      <section class="chat-area">
+        <div class="chat-container" id="chatContainer">
+          <div class="welcome-message">
+            <h3>Welcome to RAG Chat Assistant</h3>
+            <p>Upload documents to analyze , or ask general questions without documents.</p>
+          </div>
+          <!-- dynamic chat messages go here -->
+        </div>
+      </section>
+
+      <!-- Floating input bar (centered) — uses your existing elements -->
+      <div class="input-floating">
+        <div class="input-left">
+          <div class="file-indicator" id="fileIndicator">
+            <i class="fas fa-file"></i> <span id="fileCount">0</span> document(s)
+          </div>
+        </div>
+
+        <div class="input-center">
+          <textarea id="messageInput" placeholder="Ask anything..." rows="1"></textarea>
+        </div>
+
+        <div class="input-right">
+          <button id="sendButton" class="send-btn" title="Send">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Loading overlay kept -->
+  <div id="loadingOverlay" aria-hidden="true">
+    <div class="spinner"></div>
+    <div class="loading-text">Processing...</div>
+  </div>
+
+  <!-- Keep your script -->
+  <script src="/static/script.js"></script>
 </body>
 </html>
